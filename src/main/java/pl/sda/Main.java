@@ -1,5 +1,7 @@
 package pl.sda;
 
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) {
         /*
@@ -10,17 +12,7 @@ public class Main {
                 c Podglądanie kto jest następny w kolejce
                 d Posiadać tryb demo w którym:
                 e zamiast ręcznie dodawać osoby aplikacja będzie startowała z 10 osobami w kolejce
-            1. Utwórz klasę Patient mającą pola:
-                * imie (String)
-                * nazwisko (String)
-                * jakBardzoZly (int) - opisuje poziom zlosci
-                * rozpoznanaChoroba (String)
-                * pamietaj o angielskich nazwach, konstruktorze, getterach i setterach jesli potrzebujesz
-            2. Utwórz klasę HospitalQueue, która
-               a ma pole typu Queue (patientQueue)
-               b utwórz metodę add(Patient) -> dodaje pacjenta
-               c utwórz metodę Patient next() -> zwracającą kolejną osobę z kolejki i usuwającą ją z niej
-               d Patient peek() -> podglądającą kto jest (zwraca kolejną osobę bez usuwania jej z kolejki)
+
             3. W main stwórz menu:
                 a Następny - wywołujące next i wypisujące co zostało z tego next zwrócone
                 b Kto następny - wywołujące peek() i wypisujące kto jest następny
@@ -37,5 +29,74 @@ public class Main {
 
 
          */
+
+        String option = "";
+        String name = "";
+        String surname = "";
+        String diagnosis = "";
+        PatientFeeling patientFeeling ;
+        Scanner scanner = new Scanner(System.in);
+        HospitalQueue hospitalQueue = new HospitalQueue();
+
+        do {
+
+            if(option.isEmpty()) {
+                System.out.println("Menu:");
+                System.out.println("1. Next patient");
+                System.out.println("2. Check whos next");
+                System.out.println("3. New patient");
+                System.out.println("q. quit");
+
+                option = scanner.nextLine();
+            }
+
+
+            if ("1".equals(option)) {
+                try {
+                    System.out.println("Next patient is, let him in:");
+                    Patient patient = hospitalQueue.next();
+                    if(patient == null)
+                        throw new Exception("No patients in the queue.");
+                    System.out.println(String.format("%s %s", patient.getName(), patient.getSurname()));
+                }catch (Exception e){
+                    System.err.println(e.getMessage());
+                }
+
+            } else if("2".equals(option)) {
+                try {
+                    System.out.println("Next patient is:");
+                    Patient patient = hospitalQueue.peek();
+                    if(patient == null)
+                        throw new Exception("No patients in the queue.");
+                    System.out.println(String.format("%s %s", patient.getName(), patient.getSurname()));
+                }catch(Exception e){
+                    System.err.println(e.getMessage());
+                }
+                option = "";
+            }else if("3".equals(option)){
+                System.out.println("Enter new patient data.");
+                System.out.println("Name:");
+                name = scanner.nextLine();
+                System.out.println("Surname");
+                surname = scanner.nextLine();
+                System.out.println("Diagnosis");
+                diagnosis = scanner.nextLine();
+                System.out.println("Feeling");
+
+                int i = 1;
+                for(PatientFeeling feeling : PatientFeeling.values()){
+                    System.out.println(i + ". " + feeling.name());
+                    i++;
+                }
+                patientFeeling = PatientFeeling.valueOf(scanner.nextInt());
+
+                Patient newPatient = new Patient(name, surname, patientFeeling, diagnosis);
+                hospitalQueue.add(newPatient);
+                System.out.println("New patient added to queue");
+
+                option = "";
+            }
+
+        } while (!"q".equals(option));
     }
 }
