@@ -1,4 +1,7 @@
-package pl.sda;
+package pl.sda.classes;
+
+import pl.sda.enums.Diagnosis;
+import pl.sda.enums.PatientFeeling;
 
 public class Patient {
 //     1. Utwórz klasę Patient mającą pola:
@@ -10,9 +13,9 @@ public class Patient {
     private String name;
     private String surname;
     private PatientFeeling patientFeeling;
-    private String diagnosis;
+    private Diagnosis diagnosis;
 
-    public Patient(String name, String surname, PatientFeeling patientFeeling, String diagnosis) {
+    public Patient(String name, String surname, PatientFeeling patientFeeling, Diagnosis diagnosis) {
         this.name = name;
         this.surname = surname;
         this.patientFeeling = patientFeeling;
@@ -43,11 +46,11 @@ public class Patient {
         this.patientFeeling = patientFeeling;
     }
 
-    public String getDiagnosis() {
+    public Diagnosis getDiagnosis() {
         return diagnosis;
     }
 
-    public void setDiagnosis(String diagnosis) {
+    public void setDiagnosis(Diagnosis diagnosis) {
         this.diagnosis = diagnosis;
     }
 }

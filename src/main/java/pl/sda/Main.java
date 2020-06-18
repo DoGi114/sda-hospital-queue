@@ -1,8 +1,16 @@
 package pl.sda;
 
+import pl.sda.classes.DemoLauncher;
+import pl.sda.classes.HospitalQueue;
+import pl.sda.classes.Patient;
+import pl.sda.enums.Diagnosis;
+import pl.sda.enums.PatientFeeling;
+
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+    private static final HospitalQueue hospitalQueue = new HospitalQueue();
     public static void main(String[] args) {
         /*
             Twoim zadaniem jest napisanie aplikacji służącej do decydowania o kolejności przyjęć w szpitalu.
@@ -12,7 +20,6 @@ public class Main {
                 c Podglądanie kto jest następny w kolejce
                 d Posiadać tryb demo w którym:
                 e zamiast ręcznie dodawać osoby aplikacja będzie startowała z 10 osobami w kolejce
-
             3. W main stwórz menu:
                 a Następny - wywołujące next i wypisujące co zostało z tego next zwrócone
                 b Kto następny - wywołujące peek() i wypisujące kto jest następny
@@ -21,11 +28,7 @@ public class Main {
             5. Tryb demo:
                 a Co 2 sekundy aplikacja dodaje losową osobę (losujemy imię, nazwisko, chorobę z tablicy, jak bardzo zły - losujemy liczbę)
                 b Co 2 sekundy + random max 1s aplikacja przyjmuje pacjenta
-            6. Zamiast przyjmować pacjentów w kolejności naturalnej przyjmuj ich według priorytetu:
-                a Metoda next powinna zwracać najpierw osoby o nazwisku “Kowalski” (to nazwisko ordynatora),
-                   ** pomyśl w przyszłości o ładowaniu jej z pliku properties za pomocą klasy Properties
-                b w następnej kolejności powinna zwracać osoby z czymś poważnym (nazwa choroby "cos powaznego")
-                c dalej osoby, których iloczyn jakBardzoZly i zaraźliwość będzie wyższy
+
 
 
          */
@@ -33,10 +36,11 @@ public class Main {
         String option = "";
         String name = "";
         String surname = "";
-        String diagnosis = "";
+        Diagnosis patientDiagnosis;
         PatientFeeling patientFeeling ;
         Scanner scanner = new Scanner(System.in);
-        HospitalQueue hospitalQueue = new HospitalQueue();
+
+        lanuchDemo();
 
         do {
 
@@ -80,17 +84,20 @@ public class Main {
                 System.out.println("Surname");
                 surname = scanner.nextLine();
                 System.out.println("Diagnosis");
-                diagnosis = scanner.nextLine();
+
+                for(Diagnosis diagnosis : Diagnosis.values()){
+                    System.out.println(diagnosis.getId() + ". " + diagnosis.getValue());
+                }
+                patientDiagnosis = Diagnosis.valueOf(scanner.nextInt());
+
                 System.out.println("Feeling");
 
-                int i = 1;
                 for(PatientFeeling feeling : PatientFeeling.values()){
-                    System.out.println(i + ". " + feeling.name());
-                    i++;
+                    System.out.println(feeling.getId() + ". " + feeling.name());
                 }
                 patientFeeling = PatientFeeling.valueOf(scanner.nextInt());
 
-                Patient newPatient = new Patient(name, surname, patientFeeling, diagnosis);
+                Patient newPatient = new Patient(name, surname, patientFeeling, patientDiagnosis);
                 hospitalQueue.add(newPatient);
                 System.out.println("New patient added to queue");
 
@@ -98,5 +105,12 @@ public class Main {
             }
 
         } while (!"q".equals(option));
+    }
+
+    public static void lanuchDemo(){
+        List<Patient> patientList = DemoLauncher.generatePatients(10);
+        for(Patient patient : patientList){
+            hospitalQueue.add(patient);
+        }
     }
 }

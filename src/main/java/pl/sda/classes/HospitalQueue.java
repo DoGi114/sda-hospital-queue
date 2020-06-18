@@ -1,6 +1,5 @@
-package pl.sda;
+package pl.sda.classes;
 
-import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -19,14 +18,14 @@ public class HospitalQueue {
     private final Queue<Patient> patientQueue;
 
     public HospitalQueue(){
-        patientQueue = new PriorityQueue<>();
+        patientQueue = new PriorityQueue<>(new HospitalQueueComparator());
     }
 
-    public void add(Patient patien){
+    public void add(Patient patient){
         try {
             if (patientQueue.size() >= 20)
                 throw new Exception("Patient queue is too long to add next patient, try again later.");
-            patientQueue.add(patien);
+            patientQueue.add(patient);
         }catch (Exception e){
             System.err.println(e.getMessage());
         }
