@@ -40,7 +40,7 @@ public class Main {
         PatientFeeling patientFeeling ;
         Scanner scanner = new Scanner(System.in);
 
-        lanuchDemo();
+        launchDemo();
 
         do {
 
@@ -62,8 +62,10 @@ public class Main {
                     if(patient == null)
                         throw new Exception("No patients in the queue.");
                     System.out.println(String.format("%s %s", patient.getName(), patient.getSurname()));
+                    option = "";
                 }catch (Exception e){
                     System.err.println(e.getMessage());
+                    option = "";
                 }
 
             } else if("2".equals(option)) {
@@ -73,8 +75,10 @@ public class Main {
                     if(patient == null)
                         throw new Exception("No patients in the queue.");
                     System.out.println(String.format("%s %s", patient.getName(), patient.getSurname()));
+                    option = "";
                 }catch(Exception e){
                     System.err.println(e.getMessage());
+                    option = "";
                 }
                 option = "";
             }else if("3".equals(option)){
@@ -107,7 +111,7 @@ public class Main {
         } while (!"q".equals(option));
     }
 
-    public static void lanuchDemo(){
+    public static void launchDemo(){
         List<Patient> patientList = DemoLauncher.generatePatients(10);
         for(Patient patient : patientList){
             hospitalQueue.add(patient);
