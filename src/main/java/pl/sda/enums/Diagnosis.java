@@ -6,12 +6,14 @@ import java.util.Map;
 public enum Diagnosis {
     cancer(0, "Cancer"),
     fever(1, "Fever"),
-    serious(2, "Something serious");
+    serious(2, "Something serious"),
+    heartAttack(3, "Heart attack"),
+    cold(4, "Cold");
 
 
     private int id;
     private String value;
-    private static Map map = new HashMap<>();
+    private static final Map<Integer, Diagnosis> map = new HashMap<>();
 
     Diagnosis(int id, String diagnosis) {
         this.value = diagnosis;

@@ -12,7 +12,7 @@ public enum PatientFeeling {
     dying(5);
 
     private int id;
-    private static Map map = new HashMap<>();
+    private static Map<Integer, PatientFeeling> map = new HashMap<>();
 
     PatientFeeling(int id) {
         this.id = id;

@@ -1,5 +1,9 @@
-package pl.sda.classes;
+package pl.sda;
 
+import pl.sda.enums.Diagnosis;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -16,8 +20,10 @@ public class HospitalQueue {
 //        b w następnej kolejności powinna zwracać osoby z czymś poważnym (nazwa choroby "cos powaznego")
 //        c dalej osoby, których iloczyn jakBardzoZly i zaraźliwość będzie wyższy
     private final Queue<Patient> patientQueue;
+    private final List<Doctor> doctorList;
 
     public HospitalQueue(){
+        doctorList = new ArrayList<>();
         patientQueue = new PriorityQueue<>(new HospitalQueueComparator());
     }
 
@@ -31,8 +37,29 @@ public class HospitalQueue {
         }
     }
 
-    public Patient next(){
-        return patientQueue.poll();
+    public void add(Doctor doctor){
+        doctorList.add(doctor);
+    }
+
+    public Visit next(){
+        Patient patient = patientQueue.peek();
+        try{
+            if(patient == null){
+                throw new NullPointerException("No more patients");
+            }
+            for(Doctor doctor : doctorList){
+                for(Diagnosis diagnosis : doctor.getSpecialization().getHandles()){
+                    if(patient.getDiagnosis().equals(diagnosis)) {
+                        return new Visit(doctor,patientQueue.poll());
+                    }
+                }
+            }
+            patientQueue.poll();
+            throw new Exception(String.format("No doctor with a knowledge to help you, %s %s go to another place!", patient.getName(), patient.getSurname()));
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            return null;
+        }
     }
 
     public Patient peek(){

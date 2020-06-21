@@ -1,118 +1,140 @@
 package pl.sda;
 
-import pl.sda.classes.DemoLauncher;
-import pl.sda.classes.HospitalQueue;
-import pl.sda.classes.Patient;
 import pl.sda.enums.Diagnosis;
+import pl.sda.enums.DoctorsSpecialization;
 import pl.sda.enums.PatientFeeling;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Main {
     private static final HospitalQueue hospitalQueue = new HospitalQueue();
     public static void main(String[] args) {
-        /*
-            Twoim zadaniem jest napisanie aplikacji służącej do decydowania o kolejności przyjęć w szpitalu.
-            Aplikacja powinna pozwalać na:
-                a Rejestrację nowego pacjenta, chyba ze dlugosc kolejki jest wieksza niz 20
-                b Pobieranie następnej osoby z kolejki
-                c Podglądanie kto jest następny w kolejce
-                d Posiadać tryb demo w którym:
-                e zamiast ręcznie dodawać osoby aplikacja będzie startowała z 10 osobami w kolejce
-            3. W main stwórz menu:
-                a Następny - wywołujące next i wypisujące co zostało z tego next zwrócone
-                b Kto następny - wywołujące peek() i wypisujące kto jest następny
-                c Nowy pacjent - umożliwiające podanie imienia, nazwiska, złości i rozpoznanej choroby, a następnie wrzucające to na kolejkę (te dane pobierz za pomocą Scannera)
-            4.* Zamiast przechowywac rozpoznana chorobe w Stringu trzymaj ja jako klase - razem
-            5. Tryb demo:
-                a Co 2 sekundy aplikacja dodaje losową osobę (losujemy imię, nazwisko, chorobę z tablicy, jak bardzo zły - losujemy liczbę)
-                b Co 2 sekundy + random max 1s aplikacja przyjmuje pacjenta
-
-
-
-         */
-
         String option = "";
-        String name = "";
-        String surname = "";
+        String name;
+        String surname;
         Diagnosis patientDiagnosis;
         PatientFeeling patientFeeling ;
+        Timer addRandomPerson = new Timer();
+        Timer getPatient = new Timer();
         Scanner scanner = new Scanner(System.in);
 
-        launchDemo();
+        generateDoctors();
 
-        do {
+        try {
+            do {
 
-            if(option.isEmpty()) {
-                System.out.println("Menu:");
-                System.out.println("1. Next patient");
-                System.out.println("2. Check whos next");
-                System.out.println("3. New patient");
-                System.out.println("q. quit");
+                if (option.isEmpty()) {
+                    System.out.println("Menu:");
+                    System.out.println("1. Next patient");
+                    System.out.println("2. Check whos next");
+                    System.out.println("3. New patient");
+                    System.out.println("4. Launch demo");
+                    System.out.println("q. quit");
 
-                option = scanner.nextLine();
-            }
+                    option = scanner.nextLine();
+                }
 
 
-            if ("1".equals(option)) {
-                try {
-                    System.out.println("Next patient is, let him in:");
-                    Patient patient = hospitalQueue.next();
-                    if(patient == null)
-                        throw new Exception("No patients in the queue.");
-                    System.out.println(String.format("%s %s", patient.getName(), patient.getSurname()));
+                if ("1".equals(option)) {
+                    try {
+                        System.out.println("Next patient is, let him in:");
+                        Visit visit = hospitalQueue.next();
+                        if (visit == null) {
+                            throw new Exception("No patients in the queue.");
+                        }
+                        System.out.println(String.format("Patient %s %s with %s, go to %s %s", visit.getPatient().getName(),
+                                visit.getPatient().getSurname(),
+                                visit.getPatient().getDiagnosis().name(),
+                                visit.getDoctor().getName(),
+                                visit.getDoctor().getSurname()));
+                        option = "";
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
+                        option = "";
+                    }
+
+                } else if ("2".equals(option)) {
+                    try {
+                        System.out.println("Next patient is:");
+                        Patient patient = hospitalQueue.peek();
+                        if (patient == null)
+                            throw new Exception("No patients in the queue.");
+                        System.out.println(String.format("%s %s", patient.getName(), patient.getSurname()));
+                        option = "";
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
+                        option = "";
+                    }
                     option = "";
-                }catch (Exception e){
-                    System.err.println(e.getMessage());
+                } else if ("3".equals(option)) {
+                    System.out.println("Enter new patient data.");
+                    System.out.println("Name:");
+                    name = scanner.nextLine();
+                    System.out.println("Surname");
+                    surname = scanner.nextLine();
+                    System.out.println("Diagnosis");
+
+                    for (Diagnosis diagnosis : Diagnosis.values()) {
+                        System.out.println(String.format("%s. %s", diagnosis.getId(), diagnosis.getValue()));
+                    }
+                    patientDiagnosis = Diagnosis.valueOf(scanner.nextInt());
+
+                    System.out.println("Feeling");
+
+                    for (PatientFeeling feeling : PatientFeeling.values()) {
+                        System.out.println(String.format("%s. %s", feeling.getId(), feeling.name()));
+                    }
+                    patientFeeling = PatientFeeling.valueOf(scanner.nextInt());
+
+                    Patient newPatient = new Patient(name, surname, patientFeeling, patientDiagnosis);
+                    hospitalQueue.add(newPatient);
+                    System.out.println("New patient added to queue");
+
+                    option = "";
+                } else if ("4".equals(option)) {
+                    addRandomPerson.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            generatePatients(1);
+                        }
+                    }, 0, 2000);
+
+                    getPatient.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            Visit visit = hospitalQueue.next();
+                            if(visit != null) {
+                                System.out.println(String.format("Patient %s %s with %s, go to %s %s", visit.getPatient().getName(),
+                                        visit.getPatient().getSurname(),
+                                        visit.getPatient().getDiagnosis().name(),
+                                        visit.getDoctor().getName(),
+                                        visit.getDoctor().getSurname()));
+                            }
+                        }
+                    }, 1000, 3000);
                     option = "";
                 }
 
-            } else if("2".equals(option)) {
-                try {
-                    System.out.println("Next patient is:");
-                    Patient patient = hospitalQueue.peek();
-                    if(patient == null)
-                        throw new Exception("No patients in the queue.");
-                    System.out.println(String.format("%s %s", patient.getName(), patient.getSurname()));
-                    option = "";
-                }catch(Exception e){
-                    System.err.println(e.getMessage());
-                    option = "";
-                }
-                option = "";
-            }else if("3".equals(option)){
-                System.out.println("Enter new patient data.");
-                System.out.println("Name:");
-                name = scanner.nextLine();
-                System.out.println("Surname");
-                surname = scanner.nextLine();
-                System.out.println("Diagnosis");
-
-                for(Diagnosis diagnosis : Diagnosis.values()){
-                    System.out.println(diagnosis.getId() + ". " + diagnosis.getValue());
-                }
-                patientDiagnosis = Diagnosis.valueOf(scanner.nextInt());
-
-                System.out.println("Feeling");
-
-                for(PatientFeeling feeling : PatientFeeling.values()){
-                    System.out.println(feeling.getId() + ". " + feeling.name());
-                }
-                patientFeeling = PatientFeeling.valueOf(scanner.nextInt());
-
-                Patient newPatient = new Patient(name, surname, patientFeeling, patientDiagnosis);
-                hospitalQueue.add(newPatient);
-                System.out.println("New patient added to queue");
-
-                option = "";
-            }
-
-        } while (!"q".equals(option));
+            } while (!"q".equals(option));
+        }finally {
+            System.out.println("Goodbye!");
+            getPatient.cancel();
+            addRandomPerson.cancel();
+        }
     }
 
-    public static void launchDemo(){
-        List<Patient> patientList = DemoLauncher.generatePatients(10);
+    private static void generateDoctors(){
+        hospitalQueue.add(new Doctor("Andrzej", "Kowalski", DoctorsSpecialization.surgeon, BigDecimal.valueOf(10_000)));
+        hospitalQueue.add(new Doctor("Adam", "Kot", DoctorsSpecialization.common, BigDecimal.valueOf(5_000)));
+
+    }
+
+    private static void generatePatients(int number){
+        List<Patient> patientList = DemoLauncher.generatePatients(number);
         for(Patient patient : patientList){
             hospitalQueue.add(patient);
         }
